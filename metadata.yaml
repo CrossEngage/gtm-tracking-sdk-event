@@ -1,5 +1,7 @@
 homepage: "https://www.crossengage.io"
 documentation: "https://documentation.crossengage.io"
 versions:
+  - sha: 6c62e82857de9603325c3f874aa872d279ec9dab
+    changeNotes: Improve global SDK availability check.
   - sha: 47759285100eaf831433298ff42fbc0df275474d
     changeNotes: Initial release.
