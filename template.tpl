@@ -414,8 +414,10 @@ const copyFromWindow = require('copyFromWindow');
 const JSON = require('JSON');
 const ce = copyFromWindow('ce');
 
-if (!ce) {
-  log('Global function object does not exist!');
+if (ce) {
+  triggerEvent();
+} else {
+  log('Can not send Event: Global function object missing. Please execute the CrossEngage Tracking SDK Snippet first.');
 }
 
 function tableDataToObject(array, keyName, valueName) {
@@ -425,33 +427,35 @@ function tableDataToObject(array, keyName, valueName) {
   }, {});
 }
 
-switch(data.eventType) {
-  case 'identify':
-    ce(
-      'identify', 
-      data.identifierTypeSelection === 'useExternalId' ? 
-        data.externalId : 
-        tableDataToObject(data.customId, 'identifierName', 'identifierValue'), 
-      data.additionalTraitsVariable
-    );
-    break;
-  case 'update':
-    const updateData = data.updateInputSelect === 'updateDataByVariable' ? 
-      data.updateDataVariable : 
-      tableDataToObject(data.userTraitsKeyValue, 'userTraitName', 'userTraitValue');
-    ce('update', updateData);
-    break;
-  case 'track':
-    const eventName = data.trackEventNameDefault || data.trackEventNameCustom;
-    if(data.trackInputSelect === 'trackNoData') {
-      ce('track', eventName);
-    } else {
-      const trackData = data.trackInputSelect === 'trackDataByVariable' ? 
-        data.trackDataVariable : 
-        tableDataToObject(data.trackDataKeyValue, 'eventPropertyName', 'eventPropertyValue');
-      ce('track', eventName, trackData);
-    }
-    break;
+function triggerEvent() {
+  switch(data.eventType) {
+    case 'identify':
+      ce(
+        'identify',
+        data.identifierTypeSelection === 'useExternalId' ?
+          data.externalId :
+          tableDataToObject(data.customId, 'identifierName', 'identifierValue'),
+        data.additionalTraitsVariable
+      );
+      break;
+    case 'update':
+      const updateData = data.updateInputSelect === 'updateDataByVariable' ?
+        data.updateDataVariable :
+        tableDataToObject(data.userTraitsKeyValue, 'userTraitName', 'userTraitValue');
+      ce('update', updateData);
+      break;
+    case 'track':
+      const eventName = data.trackEventNameDefault || data.trackEventNameCustom;
+      if(data.trackInputSelect === 'trackNoData') {
+        ce('track', eventName);
+      } else {
+        const trackData = data.trackInputSelect === 'trackDataByVariable' ?
+          data.trackDataVariable :
+          tableDataToObject(data.trackDataKeyValue, 'eventPropertyName', 'eventPropertyValue');
+        ce('track', eventName, trackData);
+      }
+      break;
+  }
 }
 
 data.gtmOnSuccess();
