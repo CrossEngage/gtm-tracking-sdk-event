@@ -64,62 +64,102 @@ ___TEMPLATE_PARAMETERS___
         "radioItems": [
           {
             "value": "useExternalId",
-            "displayValue": "Identify by External ID"
+            "displayValue": "Identify by External ID",
+            "subParams": [
+              {
+                "type": "TEXT",
+                "name": "externalId",
+                "displayName": "External ID",
+                "simpleValueType": true
+              }
+            ]
           },
           {
             "value": "useCustomId",
-            "displayValue": "Identify by custom Identifiers"
+            "displayValue": "Identify by custom Identifiers",
+            "subParams": [
+              {
+                "type": "SIMPLE_TABLE",
+                "name": "customId",
+                "displayName": "Custom Identifiers",
+                "simpleTableColumns": [
+                  {
+                    "defaultValue": "",
+                    "displayName": "Identifier",
+                    "name": "identifierName",
+                    "type": "TEXT"
+                  },
+                  {
+                    "defaultValue": "",
+                    "displayName": "Value",
+                    "name": "identifierValue",
+                    "type": "TEXT"
+                  }
+                ]
+              }
+            ]
           }
         ],
         "simpleValueType": true
       },
       {
-        "type": "TEXT",
-        "name": "externalId",
-        "displayName": "External ID",
-        "simpleValueType": true,
-        "enablingConditions": [
+        "type": "RADIO",
+        "name": "additionalTraitsSelect",
+        "displayName": "Add additional user traits as",
+        "radioItems": [
           {
-            "paramName": "identifierTypeSelection",
-            "paramValue": "useExternalId",
-            "type": "EQUALS"
-          }
-        ]
-      },
-      {
-        "type": "SIMPLE_TABLE",
-        "name": "customId",
-        "displayName": "Custom Identifiers",
-        "simpleTableColumns": [
-          {
-            "defaultValue": "",
-            "displayName": "Identifier",
-            "name": "identifierName",
-            "type": "TEXT"
+            "value": "noAdditionalTraits",
+            "displayValue": "No Additional Traits"
           },
           {
-            "defaultValue": "",
-            "displayName": "Value",
-            "name": "identifierValue",
-            "type": "TEXT"
+            "value": "additionalTraitsByVariable",
+            "displayValue": "Variable",
+            "subParams": [
+              {
+                "type": "SELECT",
+                "name": "additionalTraitsVariable",
+                "displayName": "Additional User Traits",
+                "macrosInSelect": true,
+                "selectItems": [],
+                "simpleValueType": true,
+                "help": "Additional User Traits can be send with the Identify event, provided as key value Objects in a variable."
+              }
+            ]
+          },
+          {
+            "value": "additionalTraitsByKeyValue",
+            "displayValue": "Key Value Pairs",
+            "subParams": [
+              {
+                "type": "SIMPLE_TABLE",
+                "name": "additionalTraitsKeyValue",
+                "displayName": "",
+                "simpleTableColumns": [
+                  {
+                    "defaultValue": "",
+                    "displayName": "Trait",
+                    "name": "userTraitName",
+                    "type": "TEXT"
+                  },
+                  {
+                    "defaultValue": "",
+                    "displayName": "Value",
+                    "name": "userTraitValue",
+                    "type": "TEXT"
+                  }
+                ],
+                "valueValidators": [
+                  {
+                    "type": "NON_EMPTY"
+                  }
+                ]
+              }
+            ]
           }
         ],
-        "enablingConditions": [
-          {
-            "paramName": "identifierTypeSelection",
-            "paramValue": "useCustomId",
-            "type": "EQUALS"
-          }
-        ]
-      },
-      {
-        "type": "SELECT",
-        "name": "additionalTraitsVariable",
-        "displayName": "Additional User Traits",
-        "macrosInSelect": true,
-        "selectItems": [],
         "simpleValueType": true,
-        "help": "Additional User Traits can be send with the Identify event, provided as key value Objects in a variable."
+        "help": "Send additional user traits with your Identify event either from a variable or key value pairs.",
+        "defaultValue": "noAdditionalTraits"
       }
     ],
     "enablingConditions": [
@@ -183,7 +223,6 @@ ___TEMPLATE_PARAMETERS___
                     "type": "TEXT"
                   }
                 ],
-                "enablingConditions": [],
                 "valueValidators": [
                   {
                     "type": "NON_EMPTY"
@@ -370,7 +409,6 @@ ___TEMPLATE_PARAMETERS___
                     "type": "TEXT"
                   }
                 ],
-                "enablingConditions": [],
                 "valueValidators": [
                   {
                     "type": "NON_EMPTY",
@@ -427,6 +465,17 @@ function tableDataToObject(array, keyName, valueName) {
   }, {});
 }
 
+function getAdditionalTraitsIdentify() {
+   switch(data.additionalTraitsSelect) {
+     case 'noAdditionalTraits':
+       return {};
+     case 'additionalTraitsByVariable':
+       return data.additionalTraitsVariable;
+     case 'additionalTraitsByKeyValue':
+       return tableDataToObject(data.additionalTraitsKeyValue, 'userTraitName', 'userTraitValue');
+   }
+}
+
 function triggerEvent() {
   switch(data.eventType) {
     case 'identify':
@@ -435,7 +484,7 @@ function triggerEvent() {
         data.identifierTypeSelection === 'useExternalId' ?
           data.externalId :
           tableDataToObject(data.customId, 'identifierName', 'identifierValue'),
-        data.additionalTraitsVariable
+        getAdditionalTraitsIdentify()
       );
       break;
     case 'update':
