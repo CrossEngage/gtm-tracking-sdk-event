@@ -1,6 +1,8 @@
 homepage: "https://www.crossengage.io"
 documentation: "https://documentation.crossengage.io"
 versions:
+  - sha: 3f8d76457f94c553e414e779a63711bd57494feb
+    changeNotes: Remove debugging log.
   - sha: 42012fdf3cda5f5b15467a99703bc6d4ae917e7f
     changeNotes: Add configuration of additional traits as key value pairs for identify event.
   - sha: 6c62e82857de9603325c3f874aa872d279ec9dab
