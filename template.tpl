@@ -447,7 +447,6 @@ ___TEMPLATE_PARAMETERS___
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
 const log = require('logToConsole');
-log(data);
 const copyFromWindow = require('copyFromWindow');
 const JSON = require('JSON');
 const ce = copyFromWindow('ce');
